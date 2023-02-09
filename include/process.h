@@ -10,22 +10,21 @@ class Process {
  public:
   Process(int pid);
   int Pid() const;
+  int getRam() const;
   std::string User() const;
   std::string Command() const;
-  float CpuUtilization() const;
   std::string Ram() const;
-  int getRam() const;
+  float CpuUtilization() const;
   long int UpTime() const;
   bool operator<(Process const& a) const;
 
- private:
-  int m_pid;
-  long m_ram;
-  float m_utilization;
-  long m_uptime;
-  std::string m_command;
-  std::string m_user;
-
+private:
+  int pid_;
+  std::string user_;
+  std::string command_;
+  long ram_;
+  long uptime_;
+  float utilization_;
 };
 
 #endif

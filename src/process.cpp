@@ -1,55 +1,61 @@
-#include "process.h"
-
-#include <unistd.h>
-
-#include <cctype>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <vector>
-
+#include "process.h"
 #include "linux_parser.h"
-using std::string;
-using std::to_string;
-using std::vector;
 
-Process::Process(int pid) {
-  m_pid = pid;
-  m_command = LinuxParser::Command(pid);
-  std::string ram = LinuxParser::Ram(pid);
-  m_ram = std::stol(ram);
-  m_uptime = LinuxParser::UpTime(pid);
-  m_user = LinuxParser::User(pid);
-
-  long seconds = LinuxParser::UpTime() - m_uptime;
-  long totaltime = LinuxParser::ActiveJiffies(pid);
-  try {
-    m_utilization = float(totaltime) / float(seconds);
-
-  } catch (...) {
-    m_utilization = 0;
-  }
+// Constructor for the Process class. Initializes all member variables.
+Process::Process(int pid)
+    : pid_(pid)
+    , user_(LinuxParser::User(pid))
+    , command_(LinuxParser::Command(pid))
+    , ram_(std::stol(LinuxParser::Ram(pid)))
+    , uptime_(LinuxParser::UpTime(pid)) {
+    // Calculate the CPU utilization of the process.
+    long seconds = LinuxParser::UpTime() - uptime_;
+    long totaltime = LinuxParser::ActiveJiffies(pid_);
+    try {
+        utilization_ = static_cast<float>(totaltime) / static_cast<float>(seconds);
+    } catch (...) {
+        utilization_ = 0;
+    }
 }
-// Return this process's ID
-int Process::Pid() const { return m_pid; }
 
-// Return this process's CPU utilization
-float Process::CpuUtilization() const { return m_utilization; }
+// Returns the process ID.
+int Process::Pid() const {
+    return pid_;
+}
 
-// Return the command that generated this process
-string Process::Command() const { return m_command; }
+// Returns the CPU utilization of the process.
+float Process::CpuUtilization() const {
+    return utilization_;
+}
 
-// Return this process's memory utilization
-string Process::Ram() const { return std::to_string(m_ram); }
+// Returns the command that generated the process.
+std::string Process::Command() const {
+    return command_;
+}
 
-int Process::getRam() const { return m_ram; }
-// Return the user (name) that generated this process
-string Process::User() const { return m_user; }
+// Returns the memory utilization of the process.
+std::string Process::Ram() const {
+    return std::to_string(ram_);
+}
 
-//  Return the age of this process (in seconds)
-long int Process::UpTime() const { return m_uptime; }
-// Overload the "less than" comparison operator for Process objects
+// Returns the memory utilization of the process as an integer.
+int Process::getRam() const {
+    return ram_;
+}
+
+// Returns the user (name) that generated the process.
+std::string Process::User() const {
+    return user_;
+}
+
+// Returns the age of the process (in seconds).
+long int Process::UpTime() const {
+    return uptime_;
+}
+
+// Overloads the "less than" comparison operator for Process objects.
+// Used for sorting processes by their CPU utilization.
 bool Process::operator<(Process const& a) const {
-  return CpuUtilization() < a.CpuUtilization();
-  // return getRam() < a.getRam();
+    return CpuUtilization() < a.CpuUtilization();
 }
