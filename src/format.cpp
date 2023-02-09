@@ -11,7 +11,7 @@ using std::string;
 // OUTPUT: HH:MM:SS
 // REMOVE: [[maybe_unused]] once you define the function
 string Format::ElapsedTime(long seconds) {
-  //convret seconds into hr, min, sec
+  // convret seconds into hr, min, sec
   auto hr = seconds / 3600;
   auto min = seconds / 60 % 60;
   auto sec = seconds % 60;

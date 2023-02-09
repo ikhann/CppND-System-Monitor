@@ -1,12 +1,14 @@
 #include "linux_parser.h"
+
 #include <dirent.h>
 #include <unistd.h>
+
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 using std::ifstream;
 using std::istringstream;
@@ -49,9 +51,11 @@ std::string LinuxParser::Kernel() {
 // Returns a list of PIDs.
 std::vector<int> LinuxParser::Pids() {
   std::vector<int> pids;
-  for (const auto& entry : std::filesystem::directory_iterator(kProcDirectory)) {
+  for (const auto& entry :
+       std::filesystem::directory_iterator(kProcDirectory)) {
     // Check if the file name is a valid PID
-    if (entry.is_directory() && std::isdigit(entry.path().filename().string()[0])) {
+    if (entry.is_directory() &&
+        std::isdigit(entry.path().filename().string()[0])) {
       int pid = std::stoi(entry.path().filename().string());
       pids.push_back(pid);
     }
@@ -91,7 +95,8 @@ long LinuxParser::UpTime() {
   long uptime;
   std::ifstream stream(kProcDirectory + kUptimeFilename);
   if (stream.is_open()) {
-    // Read the first line of the /proc/uptime file directly into the uptime variable
+    // Read the first line of the /proc/uptime file directly into the uptime
+    // variable
     stream >> uptime;
   }
   // Return the uptime value
@@ -105,7 +110,8 @@ long LinuxParser::Jiffies() {
 
 // Read and return the number of active jiffies for a PID
 long LinuxParser::ActiveJiffies(int pid) {
-  long utime, stime, cutime, cstime; // Variables to store the values of utime, stime, cutime, and cstime
+  long utime, stime, cutime, cstime;  // Variables to store the values of utime,
+                                      // stime, cutime, and cstime
   std::string line;
   std::vector<std::string> values;
   // Open and read the stat file for the given pid
@@ -115,7 +121,7 @@ long LinuxParser::ActiveJiffies(int pid) {
     // Use a stringstream to extract values from the line
     std::istringstream linestream(line);
     std::string value;
-    int i = 0; // Index counter for the values vector
+    int i = 0;  // Index counter for the values vector
     while (linestream >> value) {
       // Only store the relevant values (utime, stime, cutime, and cstime)
       if (i == 13 || i == 14 || i == 15 || i == 16) {
