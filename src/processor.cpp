@@ -1,35 +1,20 @@
 #include "processor.h"
-
 #include "linux_parser.h"
 
+// Return the aggregate CPU utilization
 float Processor::Utilization() {
-  // Return the aggregate CPU utilization
-  long total_old, total_new, active_new, idle_old, idle_new;
-  total_new = CurrentTotal();
-  active_new = CurrentActive();
-  idle_new = CurrentIdle();
+    // Get the current values of total, active, and idle jiffies
+    auto total_new = LinuxParser::Jiffies();
+    auto active_new = LinuxParser::ActiveJiffies();
 
-  total_old = PrevTotal();
-  idle_old = PrevIdle();
+    // Calculate the delta values of total, active, and idle jiffies since last call
+    float total_delta = total_new - total_;
+    float active_delta = active_new - active_;
 
-  Update(idle_new, active_new, total_new);
+    // Store the current values as the previous values for next call
+    total_ = total_new;
+    active_ = active_new;
 
-  float totalDelta = float(total_new) - float(total_old);
-  float idleDetla = float(idle_new) - float(idle_old);
-
-  float utilization = (totalDelta - idleDetla) / totalDelta;
-  return utilization;
-}
-
-long Processor::CurrentTotal() { return LinuxParser::Jiffies(); }
-long Processor::CurrentActive() { return LinuxParser::ActiveJiffies(); }
-long Processor::CurrentIdle() { return LinuxParser::IdleJiffies(); }
-
-long Processor::PrevTotal() { return m_total; }
-long Processor::PrevActive() { return m_active; }
-long Processor::PrevIdle() { return m_idle; }
-void Processor::Update(long idle, long active, long total) {
-  m_idle = idle;
-  m_active = active;
-  m_total = total;
+    // Calculate and return the CPU utilization
+    return active_delta / total_delta;
 }
