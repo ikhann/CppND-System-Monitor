@@ -1,8 +1,8 @@
 #include "process.h"
-
+#include "linux_parser.h"
 #include <string>
 
-#include "linux_parser.h"
+#define MAX_COMMAND_SIZE 40
 
 // Constructor for the Process class. Initializes all member variables.
 Process::Process(int pid)
@@ -28,7 +28,13 @@ int Process::Pid() const { return pid_; }
 float Process::CpuUtilization() const { return utilization_; }
 
 // Returns the command that generated the process.
-std::string Process::Command() const { return command_; }
+std::string Process::Command() const {
+  // Append ... in the end if the command exceeds more than 40 characters
+  if (command_.size() > MAX_COMMAND_SIZE) {
+    return command_.substr(0, MAX_COMMAND_SIZE) + "...";
+  }
+  return command_; 
+}
 
 // Returns the memory utilization of the process.
 std::string Process::Ram() const { return std::to_string(ram_); }
@@ -40,7 +46,7 @@ int Process::getRam() const { return ram_; }
 std::string Process::User() const { return user_; }
 
 // Returns the age of the process (in seconds).
-long int Process::UpTime() const { return uptime_; }
+long int Process::UpTime() const { return LinuxParser::UpTime() - uptime_; }
 
 // Overloads the "less than" comparison operator for Process objects.
 // Used for sorting processes by their CPU utilization.

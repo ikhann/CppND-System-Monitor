@@ -1,8 +1,7 @@
 #include "system.h"
-
+#include "linux_parser.h"
 #include <algorithm>
 
-#include "linux_parser.h"
 
 Processor& System::Cpu() {
   //  Return the system's CPU
@@ -16,7 +15,7 @@ std::vector<Process>& System::Processes() {
   // Only add the process if it has information about its RAM usage
   for (const auto& pid : pids) {
     if (!LinuxParser::Ram(pid).empty()) {
-      processes_.push_back(Process(pid));
+      processes_.emplace_back(pid);
     }
   }
   // Sort the processes_ vector in descending order based on their RAM usage

@@ -9,9 +9,9 @@ using std::string;
 // Complete this helper function
 // INPUT: Long int measuring seconds
 // OUTPUT: HH:MM:SS
-// REMOVE: [[maybe_unused]] once you define the function
+// REMOVE: [[maybe_unused]] once you define the f unction
 string Format::ElapsedTime(long seconds) {
-  // convret seconds into hr, min, sec
+  // convert seconds into hr, min, sec
   auto hr = seconds / 3600;
   auto min = seconds / 60 % 60;
   auto sec = seconds % 60;
